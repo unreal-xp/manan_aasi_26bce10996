@@ -6,6 +6,58 @@ body {
     margin: 0;
 }
 
+/* gradient from https://www.gradient-animator.com/ */
+body {
+    background: linear-gradient(270deg, #9bd2ff, #9baaff, #d79bff, #ff9bee);
+    background-size: 800% 800%;
+
+    -webkit-animation: AnimationName 59s ease infinite;
+    -moz-animation: AnimationName 59s ease infinite;
+    animation: AnimationName 59s ease infinite;
+}
+
+@-webkit-keyframes AnimationName {
+    0% {
+        background-position: 0% 50%
+    }
+
+    50% {
+        background-position: 100% 50%
+    }
+
+    100% {
+        background-position: 0% 50%
+    }
+}
+
+@-moz-keyframes AnimationName {
+    0% {
+        background-position: 0% 50%
+    }
+
+    50% {
+        background-position: 100% 50%
+    }
+
+    100% {
+        background-position: 0% 50%
+    }
+}
+
+@keyframes AnimationName {
+    0% {
+        background-position: 0% 50%
+    }
+
+    50% {
+        background-position: 100% 50%
+    }
+
+    100% {
+        background-position: 0% 50%
+    }
+}
+
 .mainDivHomePage {
     display: flex;
     flex-direction: column;
@@ -164,24 +216,36 @@ body {
     border-radius: .5rem;
     overflow: hidden;
     display: flex;
+    transition: width 1s ease;
     align-items: center;
 }
 
-.voteBar {
+.voteBarNormal,
+.voteBarCorrect,
+.voteBarPicked {
     position: absolute;
     left: 0;
     top: 0;
     height: 100%;
-    background-color: #4fff7555;
+    background-color: #2a7fff9a;
     border-radius: .5rem;
     transition: width 1s ease;
     z-index: 0;
+}
+
+.voteBarCorrect {
+    background-color: #2aff469a;
+}
+
+.voteBarPicked {
+    background-color: #ffc62a9a;
 }
 
 .voteLabel {
     position: relative;
     z-index: 1;
     padding-left: 1rem;
+    transition: width 1s ease;
     font-weight: bold;
     color: #1a1a2e;
 }

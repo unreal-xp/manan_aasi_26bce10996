@@ -161,6 +161,10 @@ def CreateRoom(roomCode:str, request:RoomCreateJoinCodeRequest):
     }
 
 # ---
+# DELETE ROOM
+# ---
+
+# ---
 # GET INFO ABOUT ROOM
 # ---
 

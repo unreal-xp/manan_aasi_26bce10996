@@ -1,15 +1,5 @@
 roomCode = sessionStorage.getItem("roomCode") || ""
 userID = sessionStorage.getItem("userID") || ""
-let socket
-
-function ConnectWebSocket() {
-    socket = new WebSocket(`ws://127.0.0.1:8000/ws/${roomCode}`)
-    socket.onopen = () => { console.log("Admin WebSocket connected:", roomCode) }
-    socket.onmessage = (event) => {
-        message = JSON.parse(event.data)
-        if (message.type === "room_update") { UpdateAdminPoll(message.data) }
-    }
-}
 
 function UpdateAdminPoll(room) {
     document.getElementById("questionText").textContent = "Question : " + room.poll.question
@@ -55,7 +45,7 @@ async function InitPoll() {
     room = await response.json();
 
     UpdateAdminPoll(room);
-    ConnectWebSocket();
+    ConnectWebSocket(roomCode, UpdateAdminPoll);
 }
 
 async function DeleteOption(uid) {

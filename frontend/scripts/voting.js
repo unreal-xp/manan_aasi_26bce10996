@@ -1,28 +1,16 @@
 roomCode = sessionStorage.getItem("roomCode") || ""
 userID = sessionStorage.getItem("userID") || ""
 
-let socket
-
-function ConnectWebSocket() {
-    socket = new WebSocket(`ws://127.0.0.1:8000/ws/${roomCode}`)
-    socket.onopen = () => {console.log("WebSocket connected:", roomCode)}
-
-    socket.onmessage = (event) => {
-        message = JSON.parse(event.data)
-        if (message.type == "room_update") {
-            console.log("Room updated:", message.data)
-            UpdateVotingPage(message.data)
-        }
-    }
-
-    socket.onclose = () => { console.log("WebSocket disconnected") }
-    socket.onerror = (error) => { console.error("WebSocket error:", error) }
-}
-
 function UpdateVotingPage(room) {
     document.getElementById("questionText").textContent = "Question : " + room.poll.question
     ShowOptions(room.poll.options)
     document.getElementById("totalUsers").textContent = "Total Participants - " + room.users.length
+    if (room.poll.ended) {
+        window.alert("Poll Has Ended!")
+        sessionStorage.setItem("roomCode", roomCode)
+        sessionStorage.setItem("userID", userID)
+        window.location.replace("http://127.0.0.1:5500/frontend/user_voting_view.html")
+    }
 }
 
 function ShowOptions(options) {
@@ -68,7 +56,7 @@ async function InitPoll() {
 
     const room = await response.json()
     UpdateVotingPage(room)
-    ConnectWebSocket()
+    ConnectWebSocket(roomCode, UpdateVotingPage);
 }
 
 async function SubmitPollOption() {
@@ -96,6 +84,10 @@ async function SubmitPollOption() {
     if (pollResponse.message == "Vote Added") {
         window.alert("VOTE ADDED")
         submitButton.remove()
+        sessionStorage.setItem("roomCode", roomCode)
+        sessionStorage.setItem("userID", userID)
+        sessionStorage.setItem("userPickedOption", optionID)
+        window.location.replace("http://127.0.0.1:5500/frontend/user_voting_view.html")
     } else {
         window.alert(pollResponse.error)
     }

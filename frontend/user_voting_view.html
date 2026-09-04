@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Voting</title>
+    <title>View Voting</title>
 
     <link rel="stylesheet" href="stylesheets/style.css">
 </head>
@@ -13,7 +13,8 @@
 <body>
     <div class="mainDivHomePage">
         <div class="roomCodeDiv"></div>
-        <h1>Vote</h1>
+
+        <h1>Votes</h1>
         <h2 id="roomCodeID"></h2>
 
         <h2 id="questionText"></h2>
@@ -22,16 +23,13 @@
         <div id="optionsList"></div>
         <br>
 
-
         <h3 class="totalUsersCenter" id="totalUsers"></h3>
-        <button type="button" id="SubmitOption" onclick="SubmitPollOption()" class="button">Submit Answer</button>
-
+        <button type="button" id="endPoll" onclick="LeaveRoom()" class="button">Leave Poll</button>
     </div>
     <p class="madeByWho">Made by - realXP, 2026</p>
 
     <script src="scripts/websock.js"></script>
-    <script src="scripts/app.js"></script>
-    <script src="scripts/voting.js"></script>
+    <script src="scripts/user_voting_view.js"></script>
 
 </body>
 

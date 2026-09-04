@@ -131,6 +131,5 @@ async function EndPoll() {
     const roomData = await response.json()
     if (roomData.message == "Poll Ended") {
         window.alert("Poll Ended!")
-        document.getElementById("winningAnswer").textContent = "Winning Option Is -> "
     }
 }
