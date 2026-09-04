@@ -75,6 +75,55 @@ rooms: dict[str, Room] = {
 
 connections : dict[str, list[WebSocket]] = {}
 
+# ---
+# WEBSOCKETS (fun, pain, misery, suffering)
+# ---
+async def BroadcastRoom(roomCode: str):
+    if roomCode not in connections: return
+    room = rooms[roomCode]
+
+    message = {
+        "type": "room_update",
+        "data": room.model_dump()
+    }
+
+    disconnected = []
+
+    for websocket in connections[roomCode]:
+        try:
+            await websocket.send_json(message)
+        except Exception:
+            disconnected.append(websocket)
+
+    for websocket in disconnected:
+        connections[roomCode].remove(websocket)
+
+@app.websocket("/ws/{roomCode}")
+async def WebSocketEndpoint(websocket: WebSocket, roomCode: str):
+    roomCode = roomCode.upper()
+
+    if roomCode not in rooms:
+        await websocket.close(code=1008)
+        return
+    await websocket.accept()
+
+    if roomCode not in connections: connections[roomCode] = []
+    connections[roomCode].append(websocket)
+    try:
+        await websocket.send_json({
+            "type": "room_update",
+            "data": rooms[roomCode].model_dump()
+        })
+        while True:
+            await websocket.receive_text()
+
+    except WebSocketDisconnect:
+        if roomCode in connections:
+            if websocket in connections[roomCode]:
+                connections[roomCode].remove(websocket)
+            if len(connections[roomCode]) == 0:
+                del connections[roomCode]
+
 @app.get("/")
 def BaseLink():
     return {"Welcome To Live Polling App!"}
@@ -108,6 +157,7 @@ def CreateRoom(roomCode:str, request:RoomCreateJoinCodeRequest):
     return {
         'message': "Created Room Successfully",
         'roomCode': roomCode,
+        'user': adminUser,
     }
 
 # ---
@@ -127,7 +177,7 @@ def GetRoomInfo(roomCode:str):
 # ---
 
 @app.post("/api/{roomCode}/poll/question")
-def ChangeQuestion(roomCode:str, request:QuestionRequest):
+async def ChangeQuestion(roomCode:str, request:QuestionRequest):
 
     roomCode = roomCode.upper()
 
@@ -135,10 +185,12 @@ def ChangeQuestion(roomCode:str, request:QuestionRequest):
 
     rooms[roomCode].poll.question = request.question
 
+    await BroadcastRoom(roomCode)
+
     return {'message': "Created Question Successfully"}
 
 @app.post("/api/{roomCode}/poll/addoption")
-def AddOption(roomCode:str, request:AddOptionRequest):
+async def AddOption(roomCode:str, request:AddOptionRequest):
 
     roomCode = roomCode.upper()
 
@@ -160,7 +212,7 @@ def AddOption(roomCode:str, request:AddOptionRequest):
 
     if (request.correct): poll.pickedCorrect = True
 
-    print(rooms)
+    await BroadcastRoom(roomCode)
 
     return {
         'message': "Option Added",
@@ -168,7 +220,7 @@ def AddOption(roomCode:str, request:AddOptionRequest):
     }
 
 @app.post("/api/{roomCode}/poll/removeoption")
-def RemoveOption(roomCode:str, request:RemoveOptionRequest):
+async def RemoveOption(roomCode:str, request:RemoveOptionRequest):
 
     roomCode = roomCode.upper()
 
@@ -185,6 +237,8 @@ def RemoveOption(roomCode:str, request:RemoveOptionRequest):
     if option.isCorrect:
         poll.pickedCorrect = False
 
+    await BroadcastRoom(roomCode)
+
     return {
         'message': "Option Removed",
         'optionID': request.uid
@@ -195,7 +249,7 @@ def RemoveOption(roomCode:str, request:RemoveOptionRequest):
 # ---
 
 @app.post("/api/{roomCode}/join")
-def JoinRoom(roomCode:str, request:RoomCreateJoinCodeRequest):
+async def JoinRoom(roomCode:str, request:RoomCreateJoinCodeRequest):
     roomCode = roomCode.upper()
 
     if (roomCode not in rooms): return {"error": "Room Not Found", "code": -1}
@@ -206,6 +260,8 @@ def JoinRoom(roomCode:str, request:RoomCreateJoinCodeRequest):
 
     room.users.append(user)
 
+    await BroadcastRoom(roomCode)
+
     return {
         "message" : "Joined Room",
         "roomCode": roomCode,
@@ -214,7 +270,7 @@ def JoinRoom(roomCode:str, request:RoomCreateJoinCodeRequest):
     }
 
 @app.post("/api/{roomCode}/leave")
-def LeaveRoom(roomCode:str, request:UserIDRequest):
+async def LeaveRoom(roomCode:str, request:UserIDRequest):
     roomCode = roomCode.upper()
 
     if (roomCode not in rooms): return {"error": "Room Not Found", "code": -1}
@@ -226,6 +282,8 @@ def LeaveRoom(roomCode:str, request:UserIDRequest):
 
     room.users.remove(userRem)
 
+    await BroadcastRoom(roomCode)
+
     return {
         'message': "User Left",
         'userID': request.userID
@@ -236,23 +294,27 @@ def LeaveRoom(roomCode:str, request:UserIDRequest):
 # ---
 
 @app.post("/api/{roomCode}/start")
-def StartPoll(roomCode:str):
+async def StartPoll(roomCode:str):
     roomCode = roomCode.upper()
 
     if (roomCode not in rooms): return {"error": "Room Not Found", "code": -1}
 
     rooms[roomCode].poll.started = True
 
+    await BroadcastRoom(roomCode)
+
     return {'message': "Poll Started"}
 
 @app.post("/api/{roomCode}/end")
-def EndPoll(roomCode:str):
+async def EndPoll(roomCode:str):
     roomCode = roomCode.upper()
 
     if (roomCode not in rooms): return {"error": "Room Not Found", "code": -1}
 
     rooms[roomCode].poll.started = True
     rooms[roomCode].poll.ended = True
+
+    await BroadcastRoom(roomCode)
 
     return {'message': "Poll Ended"}
 
@@ -263,9 +325,12 @@ def GetPoll(roomCode:str):
     return rooms[roomCode]
 
 @app.get("/api/{roomCode}/get/users")
-def GetTotalUsers(roomCode:str):
+async def GetTotalUsers(roomCode:str):
     roomCode = roomCode.upper()
     if (roomCode not in rooms): return {"error": "Room Not Found", "code": -1}
+
+    await BroadcastRoom(roomCode)
+
     return {"totalUsers": len(rooms[roomCode].users)}
 
 # ---
@@ -273,7 +338,7 @@ def GetTotalUsers(roomCode:str):
 # ---
 
 @app.post("/api/{roomCode}/vote/{optionID}")
-def AddVote(roomCode:str, optionID:str, request:UserIDRequest):
+async def AddVote(roomCode:str, optionID:str, request:UserIDRequest):
     roomCode = roomCode.upper()
     if (roomCode not in rooms): return {"error": "Room Not Found", "code": -1}
 
@@ -291,61 +356,6 @@ def AddVote(roomCode:str, optionID:str, request:UserIDRequest):
     user.voted = True
     user.votedOptionID = optionID
 
+    await BroadcastRoom(roomCode)
+
     return {"message": "Vote Added"}
-
-# ---
-# WEBSOCKETS (fun, pain, misery, suffering)
-# ---
-async def BroadcastRoom(roomCode: str):
-    if roomCode not in connections: return
-    room = rooms[roomCode]
-
-    message = {
-        "type": "room_update",
-        "data": room.model_dump()
-    }
-
-    disconnected = []
-
-    for websocket in connections[roomCode]:
-        try:
-            await websocket.send_json(message)
-        except Exception:
-            disconnected.append(websocket)
-
-    for websocket in disconnected:
-        connections[roomCode].remove(websocket)
-
-@app.websocket("/ws/{roomCode}")
-async def WebSocketEndpoint(websocket: WebSocket, roomCode: str):
-    roomCode = roomCode.upper()
-
-    if roomCode not in rooms:
-        await websocket.close(code=1008)
-        return
-
-    await websocket.accept()
-    if roomCode not in connections: connections[roomCode] = []
-
-    connections[roomCode].append(websocket)
-    try:
-        await websocket.send_json({
-            "type": "room_update",
-            "data": rooms[roomCode].model_dump()
-        })
-        while True:
-            await websocket.receive_text()
-
-    except WebSocketDisconnect:
-        if roomCode in connections:
-            if websocket in connections[roomCode]:
-                connections[roomCode].remove(websocket)
-            if len(connections[roomCode]) == 0:
-                del connections[roomCode]
-
-    except Exception:
-        if roomCode in connections:
-            if websocket in connections[roomCode]:
-                connections[roomCode].remove(websocket)
-            if len(connections[roomCode]) == 0:
-                del connections[roomCode]

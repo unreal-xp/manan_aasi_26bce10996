@@ -1,17 +1,16 @@
 roomCode = ""
 
 async function CreatePoll() {
-    const username = document.getElementById("userName").value;
+    const username = document.getElementById("userName").value
     if (username == "") {
         window.alert("Username Cannot Be Empty")
         return
     }
-
     const roomCodeResponse = await fetch(`http://127.0.0.1:8000/api/room/create`, {
         method: "GET",
     })
-    const roomCodeIntermediate = await roomCodeResponse.json();
-    roomCode = roomCodeIntermediate.roomCode;
+    const roomCodeIntermediate = await roomCodeResponse.json()
+    roomCode = roomCodeIntermediate.roomCode
 
     if (roomCode != "") {
         const roomCreateResponse = await fetch(`http://127.0.0.1:8000/api/${roomCode}/create`, {
@@ -23,28 +22,22 @@ async function CreatePoll() {
                 userName: username
             })
         })
-        const roomCreateData = await roomCreateResponse.json();
+        const roomCreateData = await roomCreateResponse.json()
 
         if (roomCreateData.message == "Created Room Successfully") {
-            sessionStorage.setItem("roomCode", roomCode);
-            window.location.replace("http://127.0.0.1:5500/frontend/create_poll.html");
+            sessionStorage.setItem("roomCode", roomCode)
+            sessionStorage.setItem("userID", roomCreateData.user.id)
+            window.location.replace("http://127.0.0.1:5500/frontend/create_poll.html")
         }
     }
 }
 
 async function SetPollQuestion() {
+    if (roomCode == "") { roomCode = document.getElementsByClassName("roomCodeDiv")[0].id }
+    questionInput = document.getElementById("questionInput").value
+    if (questionInput == "") { return "" }
 
-    if (roomCode == "") {
-        roomCode = document.getElementsByClassName("roomCodeDiv")[0].id
-    }
-
-    questionInput = document.getElementById("questionInput").value;
-
-    if (questionInput == "") {
-        return "";
-    }
-
-    questionTextH2 = document.getElementById("questionText");
+    questionTextH2 = document.getElementById("questionText")
 
     const pollQuestionFetch = await fetch(`http://127.0.0.1:8000/api/${roomCode}/poll/question`, {
         method: "POST",
@@ -55,25 +48,23 @@ async function SetPollQuestion() {
             question: questionInput
         })
     })
-    const pollResponse = await pollQuestionFetch.json();
+    const pollResponse = await pollQuestionFetch.json()
 
     if (pollResponse.message == "Created Question Successfully") {
-        questionTextH2.textContent = "Question : " + questionInput;
-        questionInput = document.getElementById("questionInput").value = "";
+        questionTextH2.textContent = "Question : " + questionInput
+        questionInput = document.getElementById("questionInput").value = ""
     }
 }
 
 async function CreateOption() {
-    if (roomCode == "") {
-        roomCode = document.getElementsByClassName("roomCodeDiv")[0].id
-    }
+    if (roomCode == "") { roomCode = document.getElementsByClassName("roomCodeDiv")[0].id }
 
-    optionInput = document.getElementById("optionValueInput").value;
-    optionChecked = document.getElementById("optionCorrectCheckbox").checked == true;
+    optionInput = document.getElementById("optionValueInput").value
+    optionChecked = document.getElementById("optionCorrectCheckbox").checked == true
     optionsList = document.getElementById("optionsList")
 
     if (optionInput == "") {
-        return "";
+        return ""
     }
 
     const pollOptionFetch = await fetch(`http://127.0.0.1:8000/api/${roomCode}/poll/addoption`, {
@@ -86,33 +77,10 @@ async function CreateOption() {
             correct: optionChecked
         })
     })
-    const pollResponse = await pollOptionFetch.json();
+    const pollResponse = await pollOptionFetch.json()
 
     if (pollResponse.message == "Option Added") {
-        optionDiv = document.createElement("div");
-        optionDiv.setAttribute("id", pollResponse.optionID);
-        optionDiv.setAttribute("class", 'singularOption');
-
-        newOptionH3 = document.createElement("label");
-        newOptionH3.setAttribute('class', "labelOption")
-        newOptionH3.textContent = optionInput;
-
-        newOptionDeleteButton = document.createElement("button");
-        newOptionDeleteButton.setAttribute("id", pollResponse.id + "-Button")
-        newOptionDeleteButton.setAttribute("class", "buttonSmaller")
-        newOptionDeleteButton.textContent = "Delete"
-        newOptionDeleteButton.onclick = async () => {
-            DeleteOption(pollResponse.optionID)
-        };
-
-        optionDiv.appendChild(newOptionH3);
-        optionDiv.appendChild(newOptionDeleteButton);
-        optionDiv.appendChild(document.createElement("br"));
-
-        optionsList.appendChild(optionDiv)
-
-        document.getElementById("optionCorrectCheckbox").checked = false
-        document.getElementById("optionValueInput").value = ""
+        console.log("Added option!")
     } else if (pollResponse.message == "Option Cant Be Added, >6") {
         window.alert("Cannot add more than 6 options!")
     } else if (pollResponse.message == "Option Cant Be Added, Already Correct Options Chosen") {
@@ -131,7 +99,7 @@ async function DeleteOption(uid) {
             uid: uid
         })
     })
-    const pollResponse = await pollOptionFetch.json();
+    const pollResponse = await pollOptionFetch.json()
 
     if (pollResponse.message == "Option Removed") {
         delOption.remove()
@@ -144,21 +112,18 @@ async function StartPoll() {
     if (roomCode == "") {
         roomCode = document.getElementsByClassName("roomCodeDiv")[0].id
     }
-
     const response = await fetch(`http://127.0.0.1:8000/api/${roomCode}/start`, {
         method: "POST",
     })
     const roomData = await response.json()
     if (roomData.message == "Poll Started") {
-        sessionStorage.setItem("roomCode", roomCode);
-        window.location.replace("http://127.0.0.1:5500/frontend/admin_voting.html");
+        sessionStorage.setItem("roomCode", roomCode)
+        window.location.replace("http://127.0.0.1:5500/frontend/admin_voting.html")
     }
 }
 
 async function EndPoll() {
-    if (roomCode == "") {
-        roomCode = document.getElementsByClassName("roomCodeDiv")[0].id
-    }
+    if (roomCode == "") {roomCode = document.getElementsByClassName("roomCodeDiv")[0].id}
 
     const response = await fetch(`http://127.0.0.1:8000/api/${roomCode}/end`, {
         method: "POST",
@@ -167,11 +132,5 @@ async function EndPoll() {
     if (roomData.message == "Poll Ended") {
         window.alert("Poll Ended!")
         document.getElementById("winningAnswer").textContent = "Winning Option Is -> "
-    }
-}
-
-async function ReleasePoll() {
-    if (roomCode == "") {
-        roomCode = document.getElementsByClassName("roomCodeDiv")[0].id
     }
 }

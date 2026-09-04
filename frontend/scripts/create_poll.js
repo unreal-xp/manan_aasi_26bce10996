@@ -1,42 +1,61 @@
-roomCode = sessionStorage.getItem("roomCode") || "";
+roomCode = sessionStorage.getItem("roomCode") || ""
+userID = sessionStorage.getItem("userID") || ""
+let socket
 
-async function InitPoll() {
-    optionsList = document.getElementById("optionsList")
-    roomCodeDiv = document.getElementsByClassName("roomCodeDiv")[0]
-    questionTextH2 = document.getElementById("questionText");
+function ConnectWebSocket() {
+    socket = new WebSocket(`ws://127.0.0.1:8000/ws/${roomCode}`)
+    socket.onopen = () => { console.log("Admin WebSocket connected:", roomCode) }
+    socket.onmessage = (event) => {
+        message = JSON.parse(event.data)
+        if (message.type === "room_update") { UpdateAdminPoll(message.data) }
+    }
+}
 
-    roomCodeIDElement = document.getElementById("roomCodeID").textContent = "Room Code - " + roomCode;
-    roomCodeDiv.setAttribute("id", roomCode)
+function UpdateAdminPoll(room) {
+    document.getElementById("questionText").textContent = "Question : " + room.poll.question
+    document.getElementById("totalUsers").textContent = "Total Participants - " + room.users.length
+    ShowAdminOptions(room.poll.options)
+}
 
-    const roomCodeResponse = await fetch(`http://127.0.0.1:8000/api/${roomCode}/getInfo`, {
-        method: "GET",
-    })
-    const roomCodeIntermediate = await roomCodeResponse.json();
-    questionTextH2.textContent = "Question : " + roomCodeIntermediate.poll.question;
+function ShowAdminOptions(options) {
+    optionsList.innerHTML = ""
 
-    for (const option of roomCodeIntermediate.poll.options) {
-        optionDiv = document.createElement("div");
-        optionDiv.setAttribute("id", option.id);
-        optionDiv.setAttribute("class", 'singularOption');
+    for (const option of options) {
+        optionDiv = document.createElement("div")
+        optionDiv.id = option.id
+        optionDiv.className = "singularOption"
 
-        newOptionH3 = document.createElement("label");
-        newOptionH3.setAttribute('class', "labelOption")
-        newOptionH3.textContent = option.value;
+        newOptionH3 = document.createElement("label")
+        newOptionH3.className = "labelOption"
+        newOptionH3.textContent = option.value
 
-        newOptionDeleteButton = document.createElement("button");
-        newOptionDeleteButton.setAttribute("class", "buttonSmaller")
+        newOptionDeleteButton = document.createElement("button")
+        newOptionDeleteButton.className = "buttonSmaller"
         newOptionDeleteButton.textContent = "Delete"
+
         newOptionDeleteButton.onclick = async () => {
-            DeleteOption(option.id)
-        };
+            await DeleteOption(option.id)
+        }
 
-        optionDiv.appendChild(newOptionH3);
-        optionDiv.appendChild(newOptionDeleteButton);
-        optionDiv.appendChild(document.createElement("br"));
-
+        optionDiv.appendChild(newOptionH3)
+        optionDiv.appendChild(newOptionDeleteButton)
+        optionDiv.appendChild(document.createElement("br"))
         optionsList.appendChild(optionDiv)
     }
-    GetTotalUsers()
+}
+
+async function InitPoll() {
+    optionsList = document.getElementById("optionsList");
+    roomCodeDiv = document.getElementsByClassName("roomCodeDiv")[0];
+
+    roomCodeDiv.setAttribute("id", roomCode);
+    document.getElementById("roomCodeID").textContent = "Room Code - " + roomCode;
+
+    response = await fetch(`http://127.0.0.1:8000/api/${roomCode}/getInfo`);
+    room = await response.json();
+
+    UpdateAdminPoll(room);
+    ConnectWebSocket();
 }
 
 async function DeleteOption(uid) {
@@ -50,7 +69,7 @@ async function DeleteOption(uid) {
             uid: uid
         })
     })
-    const pollResponse = await pollOptionFetch.json();
+    const pollResponse = await pollOptionFetch.json()
 
     if (pollResponse.message == "Option Removed") {
         delOption.remove()
@@ -59,12 +78,4 @@ async function DeleteOption(uid) {
     }
 }
 
-async function GetTotalUsers() {
-    const response = await fetch(`http://127.0.0.1:8000/api/${roomCode}/get/users`, {
-        method: "GET",
-    })
-    const roomData = await response.json()
-    document.getElementById("totalUsers").textContent = "Total Participants - " + roomData.totalUsers;
-}
-
-InitPoll();
+InitPoll()
