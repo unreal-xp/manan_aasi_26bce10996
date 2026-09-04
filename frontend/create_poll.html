@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Poll</title>
+
+    <link rel="stylesheet" href="stylesheet/style.css">
+</head>
+
+<body>
+    <div class="roomCodeDiv"></div>
+    <h1>Create Poll</h1>
+    <h2 id="roomCodeID"></h2>
+
+    <h2 id="questionText"></h2>
+    <input type="text" name="Enter The Question" placeholder="Enter The Question" id="questionInput">
+    <button type="button" id="setQuestion" onclick="SetPollQuestion()">Set Question</button>
+
+    <br>
+
+    <div id="optionsList"></div>
+    <br>
+
+    <input type="text" name="Option Value" placeholder="Option Value" id="optionValueInput">
+    <input type="checkbox" name="OptionCorrect" id="optionCorrectCheckbox"> <label
+        for="optionCorrectCheckbox">Correct</label>
+    <br>
+
+    <button type="button" id="addOptionButton" onclick="CreateOption()">Add Option</button>
+    <br>
+    <br>
+
+
+    <h3 id="totalUsers"></h3>
+    <button type="button" id="startPollButton">Start Poll</button>
+
+    <script src="scripts/app.js"></script>
+    <script src="scripts/create_poll.js"></script>
+
+</body>
+
+</html>
