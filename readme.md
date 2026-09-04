@@ -60,3 +60,5 @@ For usecase of AI -
 - It was NOT used for direct copy-pasting code. It was only used for understanding how to work with the things I am not familiar with.
 
 I am more familiar with softwares that do not relate with web at all. Mainly desktop applications. So this was my first attempt at all this.
+
+If you are wondering who is `real-xp`, that is just my main account. I just did not want to put my real name on that. This account was made specifically for university tasks.
