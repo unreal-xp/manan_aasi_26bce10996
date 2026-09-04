@@ -1,0 +1,155 @@
+html {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    margin: 0;
+}
+
+.mainDivHomePage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+}
+
+.input {
+    max-width: 190px;
+    height: 44px;
+    background-color: #05060f11;
+    border-radius: .5rem;
+    padding: 0 1rem;
+    margin-bottom: 1rem;
+    border: 2px solid transparent;
+    font-size: 1rem;
+    transition: border-color .3s cubic-bezier(.25, .01, .25, 1) 0s, color .3s cubic-bezier(.25, .01, .25, 1) 0s, background .2s cubic-bezier(.25, .01, .25, 1) 0s;
+}
+
+.label {
+    display: block;
+    margin-bottom: .4rem;
+    font-size: .99rem;
+    font-weight: bold;
+    color: #05060f99;
+    transition: color .3s cubic-bezier(.25, .01, .25, 1) 0s;
+}
+
+.input:hover {
+    outline: none;
+    border-color: #05060f;
+}
+
+.label,
+.input:focus {
+    color: #05060fc2;
+}
+
+.button,
+.buttonFullSpan,
+.buttonSmaller {
+    max-width: 190px;
+    height: 44px;
+    background-color: #05060f11;
+    border-radius: .5rem;
+    padding: 0 1rem;
+    border: 2px solid transparent;
+    font-size: 1rem;
+    transition: border-color .3s cubic-bezier(.25, .01, .25, 1) 0s;
+}
+
+.buttonFullSpan {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.buttonSmaller {
+    height: 34px;
+    align-self: flex-end;
+}
+
+.madeByWho {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    margin: 0;
+    font-weight: bold;
+}
+
+.totalUsersCenter {
+    text-align: center;
+    margin: 1rem;
+    margin-bottom: 1rem;
+}
+
+.labelOption,
+.labelOptionBig {
+    margin-bottom: .4rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #05060fd3;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.labelOptionBig {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    align-items: center;
+    width: 100%;
+    cursor: pointer;
+    padding: 0.7rem;
+}
+
+.optionSetDiv {
+    width: 40vh;
+    max-width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background-color: #05060f11;
+    border-radius: .5rem;
+    border: 2px solid transparent;
+    font-size: 1rem;
+    transition: border-color .3s cubic-bezier(.25, .01, .25, 1) 0s;
+}
+
+.radioButtonClassOption {
+    height: 1rem;
+    width: 1rem;
+}
+
+.optionSpan {
+    display: flex;
+    justify-content: center;
+}
+
+.singularOption {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.button:hover,
+.buttonFullSpan:hover,
+.buttonSmaller:hover,
+.optionSetDiv:hover,
+.button:focus,
+.buttonFullSpan:focus,
+.buttonSmaller:focus,
+.optionSetDiv:focus,
+.button-group:hover .input {
+    outline: none;
+    border-color: #05060f;
+}
+
+.button-group:hover .label,
+.buttonFullSpan:focus .button:focus,
+.buttonFullSpan:hover {
+    color: #05060fc2;
+}

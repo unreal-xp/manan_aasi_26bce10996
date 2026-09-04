@@ -12,18 +12,23 @@ async function InitPoll() {
         method: "GET",
     })
     const roomCodeIntermediate = await roomCodeResponse.json();
-    questionTextH2.textContent = roomCodeIntermediate.poll.question;
-    console.log(roomCodeIntermediate)
+    questionTextH2.textContent = "Question : " + roomCodeIntermediate.poll.question;
 
     for (const option of roomCodeIntermediate.poll.options) {
         optionDiv = document.createElement("div");
         optionDiv.setAttribute("id", option.id);
+        optionDiv.setAttribute("class", 'singularOption');
 
-        newOptionH3 = document.createElement("h3");
+        newOptionH3 = document.createElement("label");
+        newOptionH3.setAttribute('class', "labelOption")
         newOptionH3.textContent = option.value;
 
         newOptionDeleteButton = document.createElement("button");
+        newOptionDeleteButton.setAttribute("class", "buttonSmaller")
         newOptionDeleteButton.textContent = "Delete"
+        newOptionDeleteButton.onclick = async () => {
+            DeleteOption(option.id)
+        };
 
         optionDiv.appendChild(newOptionH3);
         optionDiv.appendChild(newOptionDeleteButton);
@@ -32,6 +37,26 @@ async function InitPoll() {
         optionsList.appendChild(optionDiv)
     }
     GetTotalUsers()
+}
+
+async function DeleteOption(uid) {
+    delOption = document.getElementById(uid)
+    const pollOptionFetch = await fetch(`http://127.0.0.1:8000/api/${roomCode}/poll/removeoption`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            uid: uid
+        })
+    })
+    const pollResponse = await pollOptionFetch.json();
+
+    if (pollResponse.message == "Option Removed") {
+        delOption.remove()
+    } else {
+        window.alert(pollResponse.error)
+    }
 }
 
 async function GetTotalUsers() {

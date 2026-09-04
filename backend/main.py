@@ -42,7 +42,7 @@ class Room(BaseModel):
 class RoomCreateJoinCodeRequest(BaseModel):
     userName: str
 
-class UserDeleteCodeRequest(BaseModel):
+class UserIDRequest(BaseModel):
     userID: str
 
 class QuestionRequest(BaseModel):
@@ -224,7 +224,7 @@ def JoinRoom(roomCode:str, request:RoomCreateJoinCodeRequest):
     }
 
 @app.post("/api/{roomCode}/leave")
-def LeaveRoom(roomCode:str, request:UserDeleteCodeRequest):
+def LeaveRoom(roomCode:str, request:UserIDRequest):
     roomCode = roomCode.upper()
 
     if (roomCode not in rooms): return {"error": "Room Not Found", "code": -1}
@@ -241,6 +241,27 @@ def LeaveRoom(roomCode:str, request:UserDeleteCodeRequest):
         'userID': request.userID
     }
 
+@app.post("/api/{roomCode}/start")
+def StartPoll(roomCode:str):
+    roomCode = roomCode.upper()
+
+    if (roomCode not in rooms): return {"error": "Room Not Found", "code": -1}
+
+    rooms[roomCode].poll.started = True
+
+    return {'message': "Poll Started"}
+
+@app.post("/api/{roomCode}/end")
+def EndPoll(roomCode:str):
+    roomCode = roomCode.upper()
+
+    if (roomCode not in rooms): return {"error": "Room Not Found", "code": -1}
+
+    rooms[roomCode].poll.started = True
+    rooms[roomCode].poll.ended = True
+
+    return {'message': "Poll Ended"}
+
 @app.get("/api/{roomCode}/poll")
 def GetPoll(roomCode:str):
     roomCode = roomCode.upper()
@@ -253,6 +274,23 @@ def GetTotalUsers(roomCode:str):
     if (roomCode not in rooms): return {"error": "Room Not Found", "code": -1}
     return {"totalUsers": len(rooms[roomCode].users)}
 
-@app.post("/api/vote/{optionID}")
-def AddVote(optionID:int):
-    pass
+@app.post("/api/{roomCode}/vote/{optionID}")
+def AddVote(roomCode:str, optionID:str, request:UserIDRequest):
+    roomCode = roomCode.upper()
+    if (roomCode not in rooms): return {"error": "Room Not Found", "code": -1}
+
+    room = rooms[roomCode]
+    option = next((option for option in room.poll.options if option.id == optionID), None)
+    if (option == None): return {"error": "Invalid Option"}
+
+    user = next((user for user in room.users if user.id == request.userID), None)
+    if user == None: return {"error": "Invalid User"}
+    if user.voted: return {"error": "User Already Voted"}
+    if not room.poll.started: return {"error": "Poll Has Not Started"}
+    if room.poll.ended: return {"error": "Poll Has Ended"}
+
+    option.votes += 1
+    user.voted = True
+    user.votedOptionID = optionID
+
+    return {"message": "Vote Added"}

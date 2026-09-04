@@ -43,7 +43,6 @@ async function SetPollQuestion() {
     if (questionInput == "") {
         return "";
     }
-    console.log(roomCode)
 
     questionTextH2 = document.getElementById("questionText");
 
@@ -59,7 +58,7 @@ async function SetPollQuestion() {
     const pollResponse = await pollQuestionFetch.json();
 
     if (pollResponse.message == "Created Question Successfully") {
-        questionTextH2.textContent = questionInput;
+        questionTextH2.textContent = "Question : " + questionInput;
         questionInput = document.getElementById("questionInput").value = "";
     }
 }
@@ -89,16 +88,18 @@ async function CreateOption() {
     })
     const pollResponse = await pollOptionFetch.json();
 
-
     if (pollResponse.message == "Option Added") {
         optionDiv = document.createElement("div");
         optionDiv.setAttribute("id", pollResponse.optionID);
+        optionDiv.setAttribute("class", 'singularOption');
 
-        newOptionH3 = document.createElement("h3");
+        newOptionH3 = document.createElement("label");
+        newOptionH3.setAttribute('class', "labelOption")
         newOptionH3.textContent = optionInput;
 
         newOptionDeleteButton = document.createElement("button");
         newOptionDeleteButton.setAttribute("id", pollResponse.id + "-Button")
+        newOptionDeleteButton.setAttribute("class", "buttonSmaller")
         newOptionDeleteButton.textContent = "Delete"
         newOptionDeleteButton.onclick = async () => {
             DeleteOption(pollResponse.optionID)
@@ -136,6 +137,36 @@ async function DeleteOption(uid) {
         delOption.remove()
     } else {
         window.alert(pollResponse.error)
+    }
+}
+
+async function StartPoll() {
+    if (roomCode == "") {
+        roomCode = document.getElementsByClassName("roomCodeDiv")[0].id
+    }
+
+    const response = await fetch(`http://127.0.0.1:8000/api/${roomCode}/start`, {
+        method: "POST",
+    })
+    const roomData = await response.json()
+    if (roomData.message == "Poll Started") {
+        sessionStorage.setItem("roomCode", roomCode);
+        window.location.replace("http://127.0.0.1:5500/frontend/admin_voting.html");
+    }
+}
+
+async function EndPoll() {
+    if (roomCode == "") {
+        roomCode = document.getElementsByClassName("roomCodeDiv")[0].id
+    }
+
+    const response = await fetch(`http://127.0.0.1:8000/api/${roomCode}/end`, {
+        method: "POST",
+    })
+    const roomData = await response.json()
+    if (roomData.message == "Poll Ended") {
+        window.alert("Poll Ended!")
+        document.getElementById("winningAnswer").textContent = "Winning Option Is -> "
     }
 }
 

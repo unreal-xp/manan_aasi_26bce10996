@@ -7,15 +7,27 @@
 
     <title>Test Application</title>
 
-    <link rel="stylesheet" href="stylesheet/style.css">
+    <link rel="stylesheet" href="stylesheets/style.css">
 </head>
 
 <body>
-    <h1>Live Polling App</h1>
-    <button type="button" id="joinRoom" onclick="JoinRoom()">Join Room</button>
-    <input type="text" id="roomName">
-    <input type="text" id="userName">
-    <button type="button" id="createRoom" onclick="CreatePoll()">Create Room</button>
+    <div class="mainDivHomePage">
+        <h1>Live Polling App</h1>
+        <div class="input-group">
+            <label class="label">Room Code</label>
+            <input autocomplete="off" type="text" id="roomName" class="input" placeholder="Enter Room Code">
+
+            <br>
+
+            <label class="label">Username</label>
+            <input autocomplete="off" type="text" id="userName" class="input" placeholder="Enter Your Username">
+        </div>
+        <div class="buttonGroupJoinCreate">
+            <button type="button" id="createRoom" onclick="CreatePoll()" class="button">Create Room</button>
+            <button type="button" id="joinRoom" onclick="JoinRoom()" class="button">Join Room</button>
+        </div>
+    </div>
+    <p class="madeByWho">Made by - realXP, 2026</p>
     <script src="scripts/app.js"></script>
     <script src="scripts/home.js"></script>
 </body>

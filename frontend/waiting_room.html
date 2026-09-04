@@ -7,19 +7,22 @@
 
     <title>Wating Room</title>
 
-    <link rel="stylesheet" href="stylesheet/style.css">
+    <link rel="stylesheet" href="stylesheets/style.css">
 </head>
 
 <body>
+    <div class="mainDivHomePage">
+        <h1>Waiting Room</h1>
 
-    <h1>Waiting For Host To Start!</h1>
-
-    <div class="roomCodeDiv"></div>
-    <h2 id="roomCodeID"></h2>
-    <h3 id="totalUsers"></h3>
-
-    <button type="button" id="leavePoll" onclick="LeaveRoom()">Leave</button>
-
+        <div class="roomCodeDiv"></div>
+        <h2 id="roomCodeID"></h2>
+        <h3 class="totalUsersCenter" id="totalUsers"></h3>
+        <div class="input-group">
+            <button type="button" id="leavePoll" onclick="LeaveRoom()" class="button">Leave</button>
+            <button type="button" onclick="MoveToPolling()" class="button">Join</button>
+        </div>
+    </div>
+    <p class="madeByWho">Made by - realXP, 2026</p>
     <script src="scripts/waiting_room.js"></script>
 </body>
 
