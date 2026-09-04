@@ -15,6 +15,17 @@ A simple project made for the shortlisting round of Software Development Club.
 - No Database (Time Constraints)
 - Pure HTML + CSS + Javascript
 
+# Architecture
+- Works via API requests and WebSockets through FastAPI in Python.
+- It is then integrated in the webpages using the corresponding scripts.
+- `websock.js` is responsible for the main live communications between the `room` dictionary entity and the website.
+- When a user makes a room, a new 8 character UUID is generated and assigned to a new `room` object.
+- This UUID can then be shared with participants that can join the room. They will have to wait until the admin starts the poll. They are automatically connected to the poll as soon as the poll starts.
+- During poll, the Admin can see the votes put in, but not names by any of the user (not implemented for names).
+- At the end, the admin can decide when the poll needs to end. It then sends a request to end the poll to the API, and that is then shared to all users connected to that `room`.
+- The results page show what is correct and what isn't.
+- The admin then needs to delete the room. This request then deletes the room object, and that is then shared to all users. They are then redirected to the home page.
+
 # Setup
 - Clone the repository
 - Download the required packages using
