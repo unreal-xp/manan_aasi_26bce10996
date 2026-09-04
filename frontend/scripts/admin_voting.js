@@ -4,16 +4,19 @@ userID = sessionStorage.getItem("userID") || ""
 function UpdatePage(room) {
     questionTextH2.textContent = "Question : " + room.poll.question
     ShowVotes(room.poll.options)
+    if (room.poll.started && room.poll.ended) {
+        document.getElementById("endPoll").remove()
+    }
     document.getElementById("totalUsers").textContent = "Total Participants - " + room.users.length
 }
 
 function InitPoll() {
-    optionsList = document.getElementById("optionsList");
-    roomCodeDiv = document.getElementsByClassName("roomCodeDiv")[0];
-    questionTextH2 = document.getElementById("questionText");
-    document.getElementById("roomCodeID").textContent = "Room Code - " + roomCode;
-    roomCodeDiv.setAttribute("id", roomCode);
-    ConnectWebSocket(roomCode, UpdatePage);
+    optionsList = document.getElementById("optionsList")
+    roomCodeDiv = document.getElementsByClassName("roomCodeDiv")[0]
+    questionTextH2 = document.getElementById("questionText")
+    document.getElementById("roomCodeID").textContent = "Room Code - " + roomCode
+    roomCodeDiv.setAttribute("id", roomCode)
+    ConnectWebSocket(roomCode, UpdatePage)
 }
 
 function ShowVotes(options) {

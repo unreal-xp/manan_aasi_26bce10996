@@ -56,7 +56,7 @@ async function InitPoll() {
 
     const room = await response.json()
     UpdateVotingPage(room)
-    ConnectWebSocket(roomCode, UpdateVotingPage);
+    ConnectWebSocket(roomCode, UpdateVotingPage)
 }
 
 async function SubmitPollOption() {

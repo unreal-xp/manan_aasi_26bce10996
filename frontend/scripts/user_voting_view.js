@@ -4,7 +4,7 @@ userPickedOption = sessionStorage.getItem("userPickedOption") || ""
 
 function UpdatePage(room) {
     questionTextH2.textContent = "Question : " + room.poll.question
-    if (room.poll.started && room.poll.started) {
+    if (room.poll.started && room.poll.ended) {
         showResults = true
     } else {
         showResults = false
@@ -14,12 +14,12 @@ function UpdatePage(room) {
 }
 
 function InitPoll() {
-    optionsList = document.getElementById("optionsList");
-    roomCodeDiv = document.getElementsByClassName("roomCodeDiv")[0];
-    questionTextH2 = document.getElementById("questionText");
-    document.getElementById("roomCodeID").textContent = "Room Code - " + roomCode;
-    roomCodeDiv.setAttribute("id", roomCode);
-    ConnectWebSocket(roomCode, UpdatePage);
+    optionsList = document.getElementById("optionsList")
+    roomCodeDiv = document.getElementsByClassName("roomCodeDiv")[0]
+    questionTextH2 = document.getElementById("questionText")
+    document.getElementById("roomCodeID").textContent = "Room Code - " + roomCode
+    roomCodeDiv.setAttribute("id", roomCode)
+    ConnectWebSocket(roomCode, UpdatePage)
 }
 
 function ShowVotes(options, showResults) {

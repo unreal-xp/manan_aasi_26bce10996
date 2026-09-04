@@ -35,17 +35,17 @@ function ShowAdminOptions(options) {
 }
 
 async function InitPoll() {
-    optionsList = document.getElementById("optionsList");
-    roomCodeDiv = document.getElementsByClassName("roomCodeDiv")[0];
+    optionsList = document.getElementById("optionsList")
+    roomCodeDiv = document.getElementsByClassName("roomCodeDiv")[0]
 
-    roomCodeDiv.setAttribute("id", roomCode);
-    document.getElementById("roomCodeID").textContent = "Room Code - " + roomCode;
+    roomCodeDiv.setAttribute("id", roomCode)
+    document.getElementById("roomCodeID").textContent = "Room Code - " + roomCode
 
-    response = await fetch(`http://127.0.0.1:8000/api/${roomCode}/getInfo`);
-    room = await response.json();
+    response = await fetch(`http://127.0.0.1:8000/api/${roomCode}/getInfo`)
+    room = await response.json()
 
-    UpdateAdminPoll(room);
-    ConnectWebSocket(roomCode, UpdateAdminPoll);
+    UpdateAdminPoll(room)
+    ConnectWebSocket(roomCode, UpdateAdminPoll)
 }
 
 async function DeleteOption(uid) {

@@ -341,6 +341,7 @@ async def StartPoll(roomCode:str):
     roomCode = roomCode.upper()
 
     if (roomCode not in rooms): return {"error": "Room Not Found", "code": -1}
+    if (rooms[roomCode].poll.question == "" or len(rooms[roomCode].poll.options) < 2): return {"error": "Fill In Question, Have more than 1 option.", "code": -1}
 
     rooms[roomCode].poll.started = True
 

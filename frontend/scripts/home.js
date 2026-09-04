@@ -1,7 +1,7 @@
 async function JoinRoom() {
 
-    roomName = document.getElementById("roomName");
-    userName = document.getElementById("userName");
+    roomName = document.getElementById("roomName")
+    userName = document.getElementById("userName")
 
     if (roomName.value == "" || userName.value == "") {
         window.alert("Fields cannot be empty!")
@@ -20,9 +20,9 @@ async function JoinRoom() {
     const roomData = await response.json()
 
     if (roomData.code == 0) {
-        sessionStorage.setItem("roomCode", roomData.roomCode);
-        sessionStorage.setItem("userID", roomData.user.id);
-        window.location.replace("http://127.0.0.1:5500/frontend/waiting_room.html");
+        sessionStorage.setItem("roomCode", roomData.roomCode)
+        sessionStorage.setItem("userID", roomData.user.id)
+        window.location.replace("http://127.0.0.1:5500/frontend/waiting_room.html")
     } else {
         window.alert("Room Does Not Exist!")
     }

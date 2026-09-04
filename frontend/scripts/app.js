@@ -119,11 +119,13 @@ async function StartPoll() {
     if (roomData.message == "Poll Started") {
         sessionStorage.setItem("roomCode", roomCode)
         window.location.replace("http://127.0.0.1:5500/frontend/admin_voting.html")
+    } else {
+        window.alert(roomData.error)
     }
 }
 
 async function EndPoll() {
-    if (roomCode == "") {roomCode = document.getElementsByClassName("roomCodeDiv")[0].id}
+    if (roomCode == "") { roomCode = document.getElementsByClassName("roomCodeDiv")[0].id }
 
     const response = await fetch(`http://127.0.0.1:8000/api/${roomCode}/end`, {
         method: "POST",
