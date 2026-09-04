@@ -43,4 +43,27 @@ function ShowVotes(options) {
     }
 }
 
+async function DeleteRoom() {
+    const confirmed = window.confirm("Are you sure you want to delete this room?")
+    if (!confirmed) { return }
+    const response = await fetch(`http://127.0.0.1:8000/api/${roomCode}/delete`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            userID: userID
+        })
+    }
+    )
+    const data = await response.json()
+    if (data.message === "Room Deleted") {
+        sessionStorage.removeItem("roomCode")
+        sessionStorage.removeItem("userID")
+        window.location.replace("http://127.0.0.1:5500/frontend/home.html")
+        return
+    }
+    window.alert(data.error || "Failed to delete room.")
+}
+
 InitPoll()

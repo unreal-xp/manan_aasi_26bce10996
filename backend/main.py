@@ -164,6 +164,45 @@ def CreateRoom(roomCode:str, request:RoomCreateJoinCodeRequest):
 # DELETE ROOM
 # ---
 
+@app.delete("/api/{roomCode}/delete")
+async def DeleteRoom(roomCode: str, request: UserIDRequest):
+    roomCode = roomCode.upper()
+    if roomCode not in rooms:
+        return {
+            "error": "Room Not Found",
+            "code": -1
+        }
+    room = rooms[roomCode]
+    user = next((user for user in room.users if user.id == request.userID),None)
+    if user is None:
+        return {
+            "error": "Invalid User",
+            "code": -2
+        }
+    if not user.admin:
+        return {
+            "error": "User Is Not Admin",
+            "code": -3
+        }
+    if roomCode in connections:
+        disconnected = []
+        for websocket in connections[roomCode]:
+            try:
+                await websocket.send_json({"type": "room_closed"})
+            except Exception:
+                disconnected.append(websocket)
+        for websocket in connections[roomCode]:
+            try:
+                await websocket.close(code=1000)
+            except Exception:
+                pass
+        del connections[roomCode]
+    del rooms[roomCode]
+    return {
+        "message": "Room Deleted",
+        "roomCode": roomCode
+    }
+
 # ---
 # GET INFO ABOUT ROOM
 # ---

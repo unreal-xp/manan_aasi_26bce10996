@@ -24,12 +24,13 @@
         <br>
 
         <h3 class="totalUsersCenter" id="totalUsers"></h3>
-        <button type="button" id="endPoll" onclick="EndPoll()" class="button">End Poll</button>
-        <br>
-        <button type="button" id="deleteRoom" onclick="" class="button">Delete Room</button>
+        <div class="input-group">
+            <button type="button" id="endPoll" onclick="EndPoll()" class="button">End Poll</button>
+            <button type="button" id="deleteRoom" onclick="DeleteRoom()" class="button">Delete Room</button>
+        </div>
     </div>
     <p class="madeByWho">Made by - realXP, 2026</p>
-    
+
     <script src="scripts/websock.js"></script>
     <script src="scripts/app.js"></script>
     <script src="scripts/admin_voting.js"></script>
