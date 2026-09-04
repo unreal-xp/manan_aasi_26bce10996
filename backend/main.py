@@ -58,36 +58,26 @@ class RemoveOptionRequest(BaseModel):
 
 # ROOMS AND WEBSOCKET CONNECTIONS
 
-rooms = {
-    "A1B2C3": {
-        "question": "What is your favourite language?",
-        "options": [
-            {
-                "id": 1,
-                "data": "C++",
-                "votes": 0
-            },
-            {
-                "id": 2,
-                "data": "C",
-                "votes": 0
-            },
-            {
-                "id": 3,
-                "data": "Python",
-                "votes": 0
-            },
-        ],
-        "users": []
-    }
+rooms: dict[str, Room] = {
+    "TEST67": Room(
+            code="TEST67",
+            poll=Poll(
+                question="What is your favourite language?",
+                options=[
+                    Option(id="1", value="C++"),
+                    Option(id="2", value="C"),
+                    Option(id="3", value="Python"),
+                ],
+            started=True
+        )
+    )
 }
 
-connections = {}
+connections : dict[str, list[WebSocket]] = {}
 
 @app.get("/")
 def BaseLink():
     return {"Welcome To Live Polling App!"}
-
 
 # ---
 # CREATE ROOM
@@ -241,6 +231,10 @@ def LeaveRoom(roomCode:str, request:UserIDRequest):
         'userID': request.userID
     }
 
+# ---
+# JOIN AND LEAVE POLL
+# ---
+
 @app.post("/api/{roomCode}/start")
 def StartPoll(roomCode:str):
     roomCode = roomCode.upper()
@@ -274,6 +268,10 @@ def GetTotalUsers(roomCode:str):
     if (roomCode not in rooms): return {"error": "Room Not Found", "code": -1}
     return {"totalUsers": len(rooms[roomCode].users)}
 
+# ---
+# ADD VOTE
+# ---
+
 @app.post("/api/{roomCode}/vote/{optionID}")
 def AddVote(roomCode:str, optionID:str, request:UserIDRequest):
     roomCode = roomCode.upper()
@@ -294,3 +292,60 @@ def AddVote(roomCode:str, optionID:str, request:UserIDRequest):
     user.votedOptionID = optionID
 
     return {"message": "Vote Added"}
+
+# ---
+# WEBSOCKETS (fun, pain, misery, suffering)
+# ---
+async def BroadcastRoom(roomCode: str):
+    if roomCode not in connections: return
+    room = rooms[roomCode]
+
+    message = {
+        "type": "room_update",
+        "data": room.model_dump()
+    }
+
+    disconnected = []
+
+    for websocket in connections[roomCode]:
+        try:
+            await websocket.send_json(message)
+        except Exception:
+            disconnected.append(websocket)
+
+    for websocket in disconnected:
+        connections[roomCode].remove(websocket)
+
+@app.websocket("/ws/{roomCode}")
+async def WebSocketEndpoint(websocket: WebSocket, roomCode: str):
+    roomCode = roomCode.upper()
+
+    if roomCode not in rooms:
+        await websocket.close(code=1008)
+        return
+
+    await websocket.accept()
+    if roomCode not in connections: connections[roomCode] = []
+
+    connections[roomCode].append(websocket)
+    try:
+        await websocket.send_json({
+            "type": "room_update",
+            "data": rooms[roomCode].model_dump()
+        })
+        while True:
+            await websocket.receive_text()
+
+    except WebSocketDisconnect:
+        if roomCode in connections:
+            if websocket in connections[roomCode]:
+                connections[roomCode].remove(websocket)
+            if len(connections[roomCode]) == 0:
+                del connections[roomCode]
+
+    except Exception:
+        if roomCode in connections:
+            if websocket in connections[roomCode]:
+                connections[roomCode].remove(websocket)
+            if len(connections[roomCode]) == 0:
+                del connections[roomCode]

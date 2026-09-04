@@ -15,12 +15,33 @@ async function InitPoll() {
     const roomCodeIntermediate = await roomCodeResponse.json();
     questionTextH2.textContent = "Question : " + roomCodeIntermediate.poll.question;
 
-    for (const option of roomCodeIntermediate.poll.options) {
-        newOptionH3 = document.createElement("h3");
-        newOptionH3.textContent = `${option.value} -> ${option.votes} Votes`;
-        optionsList.appendChild(newOptionH3);
-    }
+    ShowVotes(roomCodeIntermediate.poll.options)
+
     GetTotalUsers()
+}
+
+function ShowVotes(options) {
+    optionsList.innerHTML = ""
+
+    maxVotes = Math.max(1, ...options.map(o => o.votes))
+
+    for (const option of options) {
+        row = document.createElement("div")
+        row.className = "voteRow"
+
+        bar = document.createElement("div")
+        bar.className = "voteBar"
+        percent = (option.votes / maxVotes) * 100
+        bar.style.width = percent + "%"
+
+        label = document.createElement("span")
+        label.className = "voteLabel"
+        label.textContent = `${option.value} -> ${option.votes} Votes`
+
+        row.appendChild(bar)
+        row.appendChild(label)
+        optionsList.appendChild(row)
+    }
 }
 
 async function GetTotalUsers() {
